@@ -47,5 +47,5 @@ https://github.com/Hiralsathwara/Emotion-based-music-recommendation-system/asset
 
 ## Support
 
-For support,hiral sathwara (https://www.linkedin.com/in/hiral-sathwara-873561269/)
+For support,dev dahiya (+91-7404512322)
 
