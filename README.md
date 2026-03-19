@@ -46,6 +46,7 @@ Note:
 - `model.h5` - trained emotion detection model weights
 - `muse_v3.csv` - song dataset
 - `requirements.txt` - Python dependencies
+- `.python-version` - pins Python version for Render compatibility
 - `render.yaml` - Render deployment configuration
 
 ## Notes
