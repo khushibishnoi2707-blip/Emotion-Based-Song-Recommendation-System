@@ -1,13 +1,14 @@
 # Emotion-Based Song Recommendation System
 
-This is a Streamlit app that detects the emotion in a face photo and recommends songs from the bundled dataset based on the detected mood.
+This project is a Streamlit web app that detects emotion from a face image and recommends songs based on the detected mood.
 
 ## Features
 
-- Detects facial emotion from a camera capture or uploaded image
-- Uses a trained TensorFlow model stored in `model.h5`
-- Recommends songs with artist names and clickable links
-- Ready for local run and Streamlit Community Cloud deployment
+- Detects facial emotion from a browser camera capture or uploaded image
+- Uses a TensorFlow emotion-classification model from `model.h5`
+- Recommends songs from the bundled dataset
+- Opens recommended tracks as public Spotify links
+- Ready to deploy on Render
 
 ## Run Locally
 
@@ -29,27 +30,28 @@ streamlit run app.py
 2. Sign in with GitHub
 3. Click **New +**
 4. Choose **Blueprint**
-5. Select repository: `khushibishnoi2707-blip/Emotion-Based-Song-Recommendation-System`
+5. Select the repository `khushibishnoi2707-blip/Emotion-Based-Song-Recommendation-System`
 6. Render will detect `render.yaml`
 7. Click **Apply**
 
-After deployment, Render will generate a live link for your app.
+After deployment, Render will generate a public live link.
 
-Note:
+## Important Note About Render
 
 - The free Render plan may spin down after inactivity.
-- For an always-on app, switch the service plan in Render to a paid instance.
+- If you want the app to stay always on, upgrade the service to a paid plan.
 
 ## Project Files
 
-- `app.py` - Streamlit application
-- `model.h5` - trained emotion detection model weights
-- `muse_v3.csv` - song dataset
+- `app.py` - main Streamlit application
+- `model.h5` - trained model weights for emotion detection
+- `muse_v3.csv` - dataset used for song recommendations
 - `requirements.txt` - Python dependencies
-- `.python-version` - pins Python version for Render compatibility
+- `.python-version` - pins a TensorFlow-compatible Python version for Render
 - `render.yaml` - Render deployment configuration
 
 ## Notes
 
-- The cloud version uses browser camera capture or image upload instead of direct desktop webcam access.
+- The hosted version uses browser camera input or image upload instead of direct desktop webcam access.
 - If no face is detected, try a brighter and clearer front-facing photo.
+- Song links are generated from Spotify track IDs, so they open public Spotify track pages instead of private API endpoints.
