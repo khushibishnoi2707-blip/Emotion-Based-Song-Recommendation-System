@@ -1,51 +1,47 @@
+# Emotion-Based Song Recommendation System
 
-# Emotion-based music recommendation system
+This is a Streamlit app that detects the emotion in a face photo and recommends songs from the bundled dataset based on the detected mood.
 
-This web-based app written in Python will first scan your current emotion with the help of OpenCV & then crop the image of your face from the entire frame once the cropped image is ready it will give this image to a trained MACHINE LEARNING model to predict the emotion of the cropped image. This will happen 30-40 times in 2-3 seconds, now once we have a list of emotions (containing duplicate elements) with us it will first sort the list based on frequency & remove the duplicates. After performing all the above steps we will have a list containing the user's emotions in sorted order, Now we have to iterate over the list & recommend songs based on emotions in the list.
+## Features
 
+- Detects facial emotion from a camera capture or uploaded image
+- Uses a trained TensorFlow model stored in `model.h5`
+- Recommends songs with artist names and clickable links
+- Ready for local run and Streamlit Community Cloud deployment
 
-## Installation & Run
+## Run Locally
 
-Create a new project in Pycharm and add the above files. After that open the terminal and run the following command. This will install all the modules needed to run this app. 
+Install dependencies:
 
 ```bash
-  pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-To run the app, type the following command in the terminal. 
+Start the app:
+
 ```bash
-  streamlit run app.py
+streamlit run app.py
 ```
 
-## Libraries
+## Deploy on Streamlit Community Cloud
 
-- Streamlit
-- Opencv
-- Numpy
-- Pandas
-- Tensorflow
-- Keras
+1. Push this project to a public GitHub repository.
+2. Go to `https://share.streamlit.io/`
+3. Click **New app**
+4. Select your repository: `khushibishnoi2707-blip/Emotion-Based-Song-Recommendation-System`
+5. Set the main file path to `app.py`
+6. Click **Deploy**
 
+After deployment, Streamlit will generate a live link for your app.
 
+## Project Files
 
+- `app.py` - Streamlit application
+- `model.h5` - trained emotion detection model weights
+- `muse_v3.csv` - song dataset
+- `requirements.txt` - Python dependencies
 
+## Notes
 
-## Demo video
-
- [Emotion-based music recommendation system](
-
-https://github.com/Hiralsathwara/Emotion-based-music-recommendation-system/assets/127468119/5b2626f6-68fe-499c-9c3e-56b37f7c5d26
-
-)
- 
-
-## Authors
-
-- [Dev Dahiya](https://github.com/Dev123dahiya)
-
-
-
-## Support
-
-For support,dev dahiya (+91-7404512322)
-
+- The cloud version uses browser camera capture or image upload instead of direct desktop webcam access.
+- If no face is detected, try a brighter and clearer front-facing photo.
