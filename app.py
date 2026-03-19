@@ -1,5 +1,6 @@
 from collections import Counter
 from pathlib import Path
+from urllib.parse import quote
 
 import cv2
 import numpy as np
@@ -45,13 +46,10 @@ st.set_page_config(
 @st.cache_data
 def load_song_data() -> pd.DataFrame:
     df = pd.read_csv(DATASET_PATH)
-    df["link"] = df["spotify_id"].apply(
-        lambda track_id: f"https://open.spotify.com/track/{track_id}" if pd.notna(track_id) else None
-    )
     df["name"] = df["track"]
     df["emotional"] = df["number_of_emotion_tags"]
     df["pleasant"] = df["valence_tags"]
-    df = df[["name", "emotional", "pleasant", "link", "artist"]]
+    df = df[["name", "emotional", "pleasant", "artist"]]
     return df.sort_values(by=["emotional", "pleasant"]).reset_index(drop=True)
 
 
@@ -136,6 +134,11 @@ def detect_emotion(image_bytes: bytes, model: Sequential) -> tuple[str | None, n
     return emotion, annotated
 
 
+def build_song_link(name: str, artist: str) -> str:
+    query = quote(f"{name} {artist}")
+    return f"https://open.spotify.com/search/{query}"
+
+
 st.markdown(
     """
     <style>
@@ -156,6 +159,7 @@ st.markdown(
     }
     .hero h1 {
         margin-bottom: 0.25rem;
+        font-size: clamp(2rem, 4vw, 3.25rem);
     }
     .song-card {
         padding: 0.9rem 1rem;
@@ -168,6 +172,22 @@ st.markdown(
         color: #ffd166;
         text-decoration: none;
         font-weight: 700;
+    }
+    .section-block {
+        padding: 1rem 1.1rem;
+        border-radius: 20px;
+        background: rgba(13, 27, 42, 0.5);
+        border: 1px solid rgba(255,255,255,0.10);
+        margin-bottom: 1rem;
+    }
+    @media (max-width: 768px) {
+        .hero {
+            padding: 1rem;
+            border-radius: 18px;
+        }
+        .song-card {
+            padding: 0.85rem;
+        }
     }
     </style>
     """,
@@ -187,47 +207,47 @@ st.markdown(
 song_df = load_song_data()
 model = load_model()
 
-left, right = st.columns([1.05, 1.2])
+st.markdown('<div class="section-block">', unsafe_allow_html=True)
+st.subheader("Capture or Upload")
+photo = st.camera_input("Use your camera")
+uploaded = st.file_uploader("Or upload an image", type=["jpg", "jpeg", "png"])
+image_source = photo or uploaded
 
-with left:
-    st.subheader("Capture or Upload")
-    photo = st.camera_input("Use your camera")
-    uploaded = st.file_uploader("Or upload an image", type=["jpg", "jpeg", "png"])
-    image_source = photo or uploaded
+if image_source is None:
+    st.info("Add a photo to detect emotion and unlock recommendations.")
+else:
+    emotion, annotated_image = detect_emotion(image_source, model)
+    if annotated_image is not None:
+        st.image(annotated_image, caption="Detected face", use_container_width=True)
 
-    if image_source is None:
-        st.info("Add a photo to detect emotion and unlock recommendations.")
+    if emotion is None:
+        st.warning("No face was detected. Try a clearer, front-facing image with better lighting.")
     else:
-        emotion, annotated_image = detect_emotion(image_source, model)
-        if annotated_image is not None:
-            st.image(annotated_image, caption="Detected face", use_container_width=True)
+        st.success(f"Detected emotion: {emotion}")
+        ranked_emotions = ranked_unique_emotions([emotion])
+        recommendations = recommend_songs(song_df, ranked_emotions)
+        st.session_state["recommendations"] = recommendations
+        st.session_state["emotion"] = emotion
+st.markdown("</div>", unsafe_allow_html=True)
 
-        if emotion is None:
-            st.warning("No face was detected. Try a clearer, front-facing image with better lighting.")
-        else:
-            st.success(f"Detected emotion: {emotion}")
-            ranked_emotions = ranked_unique_emotions([emotion])
-            recommendations = recommend_songs(song_df, ranked_emotions)
-            st.session_state["recommendations"] = recommendations
-            st.session_state["emotion"] = emotion
+st.markdown('<div class="section-block">', unsafe_allow_html=True)
+st.subheader("Recommended Songs")
+current_emotion = st.session_state.get("emotion")
+recommendations = st.session_state.get("recommendations")
 
-with right:
-    st.subheader("Recommended Songs")
-    current_emotion = st.session_state.get("emotion")
-    recommendations = st.session_state.get("recommendations")
-
-    if current_emotion and recommendations is not None and not recommendations.empty:
-        st.caption(f"Showing songs for {current_emotion}")
-        for index, row in recommendations.head(30).iterrows():
-            song_link = row["link"] if pd.notna(row["link"]) else "#"
-            st.markdown(
-                f"""
-                <div class="song-card">
-                    <a href="{song_link}" target="_blank">{index + 1}. {row['name']}</a>
-                    <div>{row['artist']}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-    else:
-        st.write("Your recommendations will appear here after emotion detection.")
+if current_emotion and recommendations is not None and not recommendations.empty:
+    st.caption(f"Showing songs for {current_emotion}")
+    for index, row in recommendations.head(30).iterrows():
+        song_link = build_song_link(row["name"], row["artist"])
+        st.markdown(
+            f"""
+            <div class="song-card">
+                <a href="{song_link}" target="_blank">{index + 1}. {row['name']}</a>
+                <div>{row['artist']}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+else:
+    st.write("Your recommendations will appear here after emotion detection.")
+st.markdown("</div>", unsafe_allow_html=True)
