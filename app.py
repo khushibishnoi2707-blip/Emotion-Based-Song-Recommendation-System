@@ -45,7 +45,9 @@ st.set_page_config(
 @st.cache_data
 def load_song_data() -> pd.DataFrame:
     df = pd.read_csv(DATASET_PATH)
-    df["link"] = df["lastfm_url"]
+    df["link"] = df["spotify_id"].apply(
+        lambda track_id: f"https://open.spotify.com/track/{track_id}" if pd.notna(track_id) else None
+    )
     df["name"] = df["track"]
     df["emotional"] = df["number_of_emotion_tags"]
     df["pleasant"] = df["valence_tags"]
@@ -217,10 +219,11 @@ with right:
     if current_emotion and recommendations is not None and not recommendations.empty:
         st.caption(f"Showing songs for {current_emotion}")
         for index, row in recommendations.head(30).iterrows():
+            song_link = row["link"] if pd.notna(row["link"]) else "#"
             st.markdown(
                 f"""
                 <div class="song-card">
-                    <a href="{row['link']}" target="_blank">{index + 1}. {row['name']}</a>
+                    <a href="{song_link}" target="_blank">{index + 1}. {row['name']}</a>
                     <div>{row['artist']}</div>
                 </div>
                 """,
